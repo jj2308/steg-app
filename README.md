@@ -1,111 +1,111 @@
-# Multiple-format-Video-Stegnography Using AES and RSA Algorithm
-This Is a Video Steganography project contains multiple format
+# Secure Steganography System For Data Transmission
 
-## This project is modified and many upadates has been done in this project
-
-# Tested On :
- 
-- Ubuntu 
+A Flask-based web application for hiding encrypted data inside images and videos using LSB steganography and AES-256 encryption.
 
 ## Features
- 
-- Encrypt and Encode Text In Video.
-- Encrypt and Encode Video In Video.
-- Encrypt and Encode Audio In Video.
-- Encrypt and Encode Images In Video.
-- Encrypt and Encode Text document In Video.
-- Encrypt and Encode all format of data together too In Video.
-- Decode and Decrypt all these format  From Video.
-- Choose AES-256 or RSA Encryption.
-- Apply RSA Encryption For AES key.
-- Choose Any Frame Number.
-- Encrypt Frame Numbers With AES or RSA.
-- Save Encrypted Frame Numbers Inside Another Image like Image.png , The Encryoted Image Will Be Stored As Image-enc.png .
-### Example for Frame Numbers Hidden Inside Image :
 
- hidden inside it.
-| Original Image | Encrypted Image With Frame Numbers | 
-| :---:   | :---: |
-| <img style="border-width:0" src="https://user-images.githubusercontent.com/114608491/219359802-f3d7ca7a-2d47-44f1-8027-2d332f707cd1.jpg" width="200"/> | <img style="border-width:0" src="https://user-images.githubusercontent.com/114608491/219359802-f3d7ca7a-2d47-44f1-8027-2d332f707cd1.jpg" width="200"/>   |
- 
+- **Image Steganography** — LSB embedding with password-based random pixel scattering (PNG & JPG support)
+- **Video Steganography** — Frame-based LSB embedding with FFV1 lossless codec in MKV container
+- **AES-256 Encryption** — All payloads are compressed (zlib) and encrypted before embedding
+- **Password-Based Embedding** — Passphrase seeds a PRNG to determine embedding positions, making hidden data undetectable without the password
+- **Original File Restoration** — Embedded files are extracted with their original filename and extension
+- **Research Analysis** — Capacity estimation, PSNR/MSE metrics, SHA-256 integrity verification
 
+## How It Works
 
-## Cracking Keys ?
+```
+Secret File → Compress (zlib) → AES-256 Encrypt → LSB Embed → Stego Media
+Stego Media → LSB Extract → AES-256 Decrypt → Decompress → Original File
+```
 
-### AES-256 Breaking :  
-- Takes 27,337,893 trillion trillion trillion trillion years to bruteforce key using single computer.
-- Takes 13,689 trillion trillion trillion trillion years to bruteforce key using all computers in the world.
-### RSA-5000 Breaking :
-- 2^1024 / (5.000.000 * 16 * 60 * 60 * 24 * 365) Years to compute the key using brute force, which is about 10^292 years to break RSA-1024.
-- We use RSA-5000,I leave it to your imagination on long it takes to break RSA.
+### Image Pipeline
+Payload bits are scattered across pseudo-random pixel positions determined by the passphrase. A 32-bit header stores payload length. Output is a lossless PNG.
+
+### Video Pipeline
+Frames are extracted via OpenCV, then the passphrase seeds a PRNG to select which frames carry hidden data. Each selected frame gets a chunk of the payload via LSB embedding. Frames are reassembled into a playable MKV video using the FFV1 lossless codec with `bgr24` pixel format for bit-perfect preservation. Frame count and chunk count are stored as MKV metadata tags, so extraction only requires the passphrase.
+
+## Project Structure
+
+```
+MultiSteg/
+├── main_app.py              # Flask application entry point
+├── requirements.txt         # Python dependencies
+├── Procfile                 # Gunicorn config for cloud deployment
+├── steganography/
+│   ├── image_steg.py        # LSB image steganography with random embedding
+│   └── video_steg.py        # FFV1 video steganography with metadata tags
+├── encryption/
+│   └── aes_crypto.py        # AES-256-CBC encryption/decryption
+├── analysis/
+│   ├── capacity.py          # Capacity estimation for images and videos
+│   ├── integrity.py         # SHA-256 file hashing
+│   └── metrics.py           # PSNR and MSE quality metrics
+├── utils/
+│   ├── file_handler.py      # File I/O and directory management
+│   └── payload.py           # Payload packaging (preserves original filename)
+├── templates/               # Flask HTML templates
+│   ├── base.html
+│   ├── new_index.html
+│   ├── new_embed.html
+│   ├── new_extract.html
+│   └── new_result.html
+└── static/assets/           # Favicon
+```
+
 ## Installation
 
-1 ) Clone project with git
+### 1. Clone the repository
 
-2 ) Go to the directory & install requirements 
+```bash
+git clone https://github.com/jj2308/steg-app.git
+cd steg-app
+```
+
+### 2. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
-a) Install this for  Audio
-```
-pip install SpeechRecognition
-```
-b) Install Simple Colors Lib for Colors purpose used in the terminal.
-```
-pip install simple-colors
-```
-d) Install  gTTs Lib for Voice .
-```
-pip install gTTs
-```
-3 ) Install FFmpeg </br>
-   [Changes depending on the operating system you are using.](https://ffmpeg.org/download.html) </br>
-   For Linux & WSL use :
+
+> **Note:** FFmpeg is bundled via `imageio-ffmpeg` — no system-level FFmpeg installation required.
+
+### 3. Run the application
+
 ```bash
-sudo apt install ffmpeg -y
-```
-4 ) Create RSA keys.
-```bash
-python3 rsagen.py
+python main_app.py
 ```
 
+The app will be available at **http://localhost:5000**.
 
-## Usage/Examples
-1 ) Encryption & Encoding
-```bash
-python3 encode.py <video-to-encode-with-extension>
-```
-  Example: 
-  ```
-  python3 encode.py srutest.mp4
-  ```
+## Usage
 
-2 ) Decoding & Decryption
-```bash
-python3 decode.py <video-to-decode-with-extension>
-```
-  Example: 
-  ```
-  python3 decode.py video.mov
-  ```
+### Embedding
 
+1. Open the web UI and click **Start Embedding**
+2. Select media type (Image or Video)
+3. Upload a cover file (PNG/JPG for images, MP4/AVI for video)
+4. Upload a secret file or enter secret text
+5. Enter a passphrase
+6. Download the stego output (`.png` for images, `.mkv` for videos)
 
-![Screenshot from 2023-03-24 20-41-45](https://user-images.githubusercontent.com/114608491/227566643-65f36922-38fb-40ea-88a5-035803f8c062.png)
+### Extraction
 
-## ScreenShots![Screenshot from 2023-03-24 20-42-46](https://user-images.githubusercontent.com/114608491/227566659-f094a231-7a16-4e09-9b49-adf8e2881f24.png)![Screenshot from 2023-03-24 20-42-52](https://user-images.githubusercontent.com/114608491/227566667-f205b7a3-fc5c-41d5-b089-6650781d6991.png)
+1. Click **Start Extraction**
+2. Upload the stego file
+3. Enter the same passphrase used during embedding
+4. The original file is restored with its correct filename and extension
 
+## Security
 
-![Screenshot from 2023-03-24 20-42-22](https://user-images.githubusercontent.com/114608491/227566652-f766bcb4-1106-469c-b402-22cb79465005.png)
+- **AES-256-CBC** encryption with SHA-256 key derivation
+- **zlib compression** applied before encryption
+- **Password-based random embedding** — without the passphrase, an attacker cannot determine where data is hidden
+- Resistant to sequential-LSB steganalysis attacks
 
- ![Screenshot from 2023-02-16 17-09-28](https://user-images.githubusercontent.com/114608491/219355294-29da9c4b-1237-42a6-b262-b5b1168d4da9.png)
+## Tech Stack
 
-
-## Important Note
-
-1. Make sure that if you want to run the project in GUI mode then you have to place the files in encode and decode folder files in the root directories
-
-<pre>
-This project we have developed in the Parkalp 2023 hackathon.
-
-
-</pre>
+- **Backend:** Flask, Gunicorn
+- **Steganography:** stegano (LSB), OpenCV, Pillow
+- **Video Processing:** FFmpeg (via imageio-ffmpeg), FFV1 lossless codec
+- **Encryption:** PyCryptodome (AES-256-CBC)
+- **Frontend:** Bootstrap 5, Bootstrap Icons
