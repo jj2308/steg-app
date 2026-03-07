@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="text-center mb-4">
+            <h2 class="hero-title"><i class="bi bi-box-arrow-in-down me-2 text-primary"></i>Embed Secret Data</h2>
+            <p class="hero-sub">Encrypt and hide your data inside an image or video</p>
+        </div>
+
+        <form method="POST" action="/embed" enctype="multipart/form-data" id="embedForm">
+            <div class="form-section mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-1-circle-fill text-primary me-2"></i>Choose Media Type</h5>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="media_type" id="mediaImage" value="image" checked>
+                        <label class="btn btn-outline-primary w-100 py-3" for="mediaImage">
+                            <i class="bi bi-image fs-4 d-block mb-1"></i>
+                            Image Steganography
+                        </label>
+                    </div>
+                    <div class="col-6">
+                        <input type="radio" class="btn-check" name="media_type" id="mediaVideo" value="video">
+                        <label class="btn btn-outline-primary w-100 py-3" for="mediaVideo">
+                            <i class="bi bi-camera-video fs-4 d-block mb-1"></i>
+                            Video Steganography
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-2-circle-fill text-primary me-2"></i>Upload Cover Media</h5>
+                <div class="file-upload-area" onclick="document.getElementById('cover_file').click()">
+                    <i class="bi bi-cloud-arrow-up fs-2 text-muted"></i>
+                    <p class="mb-1 text-muted" id="coverLabel">Click to upload cover image or video</p>
+                    <small class="text-muted" id="coverHint">Supported: PNG, JPG for images &middot; MP4, MOV for videos</small>
+                    <input type="file" class="d-none" id="cover_file" name="cover_file"
+                           accept="image/png,image/jpeg,video/mp4,video/quicktime,video/x-msvideo"
+                           onchange="updateFileLabel(this, 'coverLabel')" required>
+                </div>
+                <div id="capacityInfo" class="mt-2" style="display:none;">
+                    <small class="text-success"><i class="bi bi-info-circle me-1"></i>
+                        <span id="capacityText"></span>
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-section mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-3-circle-fill text-primary me-2"></i>Secret Data</h5>
+
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#textTab" type="button">
+                            <i class="bi bi-fonts me-1"></i>Text
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#fileTab" type="button">
+                            <i class="bi bi-file-earmark me-1"></i>File
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="textTab">
+                        <textarea class="form-control" name="secret_text" rows="4"
+                                  placeholder="Type or paste your secret message here..."></textarea>
+                    </div>
+                    <div class="tab-pane fade" id="fileTab">
+                        <div class="file-upload-area" onclick="document.getElementById('secret_file').click()">
+                            <i class="bi bi-file-earmark-arrow-up fs-3 text-muted"></i>
+                            <p class="mb-0 text-muted" id="secretLabel">Click to upload a secret file</p>
+                            <input type="file" class="d-none" id="secret_file" name="secret_file"
+                                   onchange="updateFileLabel(this, 'secretLabel')">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-4-circle-fill text-primary me-2"></i>Encryption Passphrase</h5>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                    <input type="password" class="form-control" name="passphrase" id="passphrase"
+                           placeholder="Enter a strong passphrase" required minlength="4">
+                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passphrase')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <small class="text-muted mt-1 d-block">
+                    <i class="bi bi-shield-check me-1"></i>
+                    AES-256-CBC encryption with zlib compression. Remember this passphrase for extraction.
+                </small>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-accent btn-lg px-5" id="submitBtn">
+                    <i class="bi bi-lock-fill me-2"></i>Encrypt &amp; Embed
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function updateFileLabel(input, labelId) {
+        const label = document.getElementById(labelId);
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const sizeMB = (file.size / (1024*1024)).toFixed(2);
+            label.innerHTML = '<strong>' + file.name + '</strong> (' + sizeMB + ' MB)';
+        }
+    }
+
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    document.getElementById('embedForm').addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    });
+</script>
+{% endblock %}

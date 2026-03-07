@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+
+        {% if mode == 'embed' %}
+        <!-- ===== EMBED RESULT ===== -->
+        <div class="text-center mb-4">
+            <div class="mb-3">
+                <i class="bi bi-check-circle-fill display-3 text-success"></i>
+            </div>
+            <h2 class="hero-title">Embedding Complete</h2>
+            <p class="hero-sub">Your secret data has been encrypted and hidden inside the {{ media_type }}</p>
+        </div>
+
+        <!-- Download Card -->
+        <div class="result-card mb-4 text-center">
+            <h5 class="fw-bold mb-3">
+                <i class="bi bi-download me-2"></i>Download Stego {{ media_type | capitalize }}
+            </h5>
+            <a href="/download/{{ download_filename }}" class="btn btn-accent btn-lg px-5 mb-3">
+                <i class="bi bi-cloud-arrow-down me-2"></i>Download {{ download_filename }}
+            </a>
+            <p class="text-muted small mb-0">File size: {{ file_size }}</p>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="metric-box">
+                    <div class="metric-value">
+                        {% if media_type == 'image' %}
+                            {{ capacity.get('width', '?') }}&times;{{ capacity.get('height', '?') }}
+                        {% else %}
+                            {{ capacity.get('total_frames', '?') }}
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">
+                        {% if media_type == 'image' %}Resolution{% else %}Total Frames{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-box">
+                    <div class="metric-value">{{ secret_size | default('?') }}</div>
+                    <div class="metric-label">Secret Bytes</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-box">
+                    <div class="metric-value">{{ encrypted_size | default('?') }}</div>
+                    <div class="metric-label">Encrypted Bytes</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="metric-box">
+                    <div class="metric-value">
+                        {% if media_type == 'image' %}
+                            {{ capacity.get('max_kb', '?') }} KB
+                        {% else %}
+                            {{ capacity.get('max_total_kb', '?') }} KB
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Max Capacity</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PSNR Metrics (image only) -->
+        {% if metrics and metrics.get('psnr_db') %}
+        <div class="card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-graph-up me-2 text-primary"></i>Quality Metrics <span class="badge badge-research ms-1">RESEARCH</span></h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="metric-box">
+                        <div class="metric-value">{{ metrics.psnr_db }} dB</div>
+                        <div class="metric-label">PSNR</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-box">
+                        <div class="metric-value">{{ metrics.mse }}</div>
+                        <div class="metric-label">MSE</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-box">
+                        <div class="metric-value" style="font-size:1rem;">{{ metrics.quality }}</div>
+                        <div class="metric-label">Quality Rating</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Integrity Hash -->
+        <div class="card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-shield-check me-2 text-warning"></i>Integrity Verification <span class="badge badge-research ms-1">RESEARCH</span></h5>
+            <p class="small text-muted mb-2">SHA-256 hash of the stego file. Save this to verify the file has not been tampered with.</p>
+            <div class="bg-light rounded p-3">
+                <code class="text-break user-select-all" style="font-size:.85rem;">{{ file_hash }}</code>
+            </div>
+        </div>
+
+        <!-- Video Extraction Info -->
+        {% if media_type == 'video' and capacity.get('num_parts') %}
+        <div class="card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-film me-2 text-primary"></i>Video Steganography Details</h5>
+            <div class="alert alert-success mb-3">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                <strong>Extraction is simple:</strong> Upload this stego video and enter your passphrase.
+                All metadata is embedded in the MKV file automatically.
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="metric-box">
+                        <div class="metric-value">FFV1</div>
+                        <div class="metric-label">Lossless Codec</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-box">
+                        <div class="metric-value">{{ capacity.num_parts }}</div>
+                        <div class="metric-label">Chunks Embedded</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-box">
+                        <div class="metric-value">{{ capacity.frame_numbers | length }}</div>
+                        <div class="metric-label">Frames Used</div>
+                    </div>
+                </div>
+            </div>
+            <details class="mt-3">
+                <summary class="text-muted small" style="cursor:pointer;">
+                    <i class="bi bi-eye me-1"></i>Show selected frame indices (for research/debugging)
+                </summary>
+                <div class="bg-light rounded p-2 mt-2">
+                    <code class="small text-break">{{ capacity.frame_numbers | join(', ') }}</code>
+                </div>
+            </details>
+        </div>
+        {% endif %}
+
+        {% elif mode == 'extract' %}
+        <!-- ===== EXTRACT RESULT ===== -->
+        <div class="text-center mb-4">
+            <div class="mb-3">
+                <i class="bi bi-unlock-fill display-3 text-success"></i>
+            </div>
+            <h2 class="hero-title">Extraction Complete</h2>
+            <p class="hero-sub">Secret data has been successfully decoded and decrypted</p>
+        </div>
+
+        <div class="row g-3 mb-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="metric-box">
+                    <div class="metric-value">{{ decrypted_size | default('?') }}</div>
+                    <div class="metric-label">Decrypted Bytes</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-box">
+                    <div class="metric-value">{{ media_type | capitalize }}</div>
+                    <div class="metric-label">Source Type</div>
+                </div>
+            </div>
+        </div>
+
+        {% if is_text %}
+        <div class="card p-4 mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-file-text me-2 text-primary"></i>Extracted Message</h5>
+            <div class="bg-light rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                <pre class="mb-0" style="white-space: pre-wrap; word-break: break-word;">{{ message }}</pre>
+            </div>
+        </div>
+        {% else %}
+        <div class="card p-4 mb-4 text-center">
+            <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-arrow-down me-2 text-primary"></i>Extracted File</h5>
+            <p class="text-muted">
+                {% if download_filename and download_filename != 'extracted_file.bin' %}
+                    Original file <strong>{{ download_filename }}</strong> has been restored successfully.
+                {% else %}
+                    The extracted data has been saved as a binary file.
+                {% endif %}
+            </p>
+            <a href="/download/{{ download_filename }}" class="btn btn-accent px-4">
+                <i class="bi bi-cloud-arrow-down me-2"></i>Download {{ download_filename }}
+            </a>
+        </div>
+        {% endif %}
+
+        {% endif %}
+
+        <!-- Back Navigation -->
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-house me-1"></i>Home
+            </a>
+            <a href="/embed" class="btn btn-outline-primary me-2">
+                <i class="bi bi-box-arrow-in-down me-1"></i>Embed More
+            </a>
+            <a href="/extract" class="btn btn-outline-success">
+                <i class="bi bi-box-arrow-up me-1"></i>Extract More
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

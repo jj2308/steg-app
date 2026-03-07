@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="text-center mb-5">
+    <h1 class="hero-title display-4 mb-3">Multi-Media Steganography</h1>
+    <p class="hero-sub lead mb-1">Hide encrypted data inside images and videos</p>
+    <p class="hero-sub">AES-256 encryption &middot; LSB embedding &middot; Research-grade analysis</p>
+</div>
+
+<!-- Main Actions -->
+<div class="row g-4 justify-content-center mb-5">
+    <div class="col-md-5">
+        <div class="card p-4 text-center h-100">
+            <div class="mb-3">
+                <i class="bi bi-box-arrow-in-down display-3 text-primary"></i>
+            </div>
+            <h4 class="fw-bold">Embed Secret Data</h4>
+            <p class="text-muted mb-4">
+                Encrypt and hide text or files inside an image or video using
+                AES-256 encryption and LSB steganography.
+            </p>
+            <a href="/embed" class="btn btn-accent mt-auto">
+                <i class="bi bi-lock-fill me-1"></i> Start Embedding
+            </a>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card p-4 text-center h-100">
+            <div class="mb-3">
+                <i class="bi bi-box-arrow-up display-3 text-success"></i>
+            </div>
+            <h4 class="fw-bold">Extract Hidden Data</h4>
+            <p class="text-muted mb-4">
+                Decode and decrypt secret data from stego media.
+                Requires the original passphrase used during embedding.
+            </p>
+            <a href="/extract" class="btn btn-outline-accent mt-auto">
+                <i class="bi bi-unlock-fill me-1"></i> Start Extraction
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<h5 class="text-center text-muted fw-bold text-uppercase mb-3" style="letter-spacing:1px;">System Capabilities</h5>
+<div class="row g-3 justify-content-center">
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center h-100">
+            <i class="bi bi-image display-5 text-info mb-2"></i>
+            <h6 class="fw-bold mb-1">Image Steganography</h6>
+            <p class="text-muted small mt-2 mb-0">PNG &amp; JPG support via LSB embedding</p>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center h-100">
+            <i class="bi bi-camera-video display-5 text-info mb-2"></i>
+            <h6 class="fw-bold mb-1">Video Steganography</h6>
+            <p class="text-muted small mt-2 mb-0">Frame-based LSB with FFmpeg rebuild</p>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center h-100">
+            <i class="bi bi-lock-fill display-5 text-warning mb-2"></i>
+            <h6 class="fw-bold mb-1">AES-256 Encryption</h6>
+            <p class="text-muted small mt-2 mb-0">Password-protected with zlib compression</p>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 text-center h-100">
+            <i class="bi bi-bar-chart-fill display-5 text-danger mb-2"></i>
+            <h6 class="fw-bold mb-1">Research Analysis</h6>
+            <span class="badge badge-research">RESEARCH</span>
+            <p class="text-muted small mt-2 mb-0">Capacity estimation, PSNR, integrity check</p>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Diagram -->
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10">
+        <div class="card p-4">
+            <h5 class="fw-bold mb-3 text-center"><i class="bi bi-diagram-3 me-2"></i>System Workflow</h5>
+            <div class="row text-center">
+                <div class="col">
+                    <div class="metric-box">
+                        <i class="bi bi-file-earmark-text display-6 text-primary"></i>
+                        <div class="mt-2 fw-bold small">Secret Data</div>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <i class="bi bi-arrow-right fs-4 text-muted"></i>
+                </div>
+                <div class="col">
+                    <div class="metric-box">
+                        <i class="bi bi-file-zip display-6 text-warning"></i>
+                        <div class="mt-2 fw-bold small">Compress</div>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <i class="bi bi-arrow-right fs-4 text-muted"></i>
+                </div>
+                <div class="col">
+                    <div class="metric-box">
+                        <i class="bi bi-lock-fill display-6 text-danger"></i>
+                        <div class="mt-2 fw-bold small">AES-256 Encrypt</div>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <i class="bi bi-arrow-right fs-4 text-muted"></i>
+                </div>
+                <div class="col">
+                    <div class="metric-box">
+                        <i class="bi bi-layers display-6 text-success"></i>
+                        <div class="mt-2 fw-bold small">LSB Embed</div>
+                    </div>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <i class="bi bi-arrow-right fs-4 text-muted"></i>
+                </div>
+                <div class="col">
+                    <div class="metric-box">
+                        <i class="bi bi-image display-6 text-info"></i>
+                        <div class="mt-2 fw-bold small">Stego Media</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
