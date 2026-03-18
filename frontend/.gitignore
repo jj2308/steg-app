@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+.env.local
+backend/uploads/*
+!backend/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
+output/
+uploads/
+_tmp_embed/
+*.mkv
+*.mp4
+*.avi
